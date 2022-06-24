@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct HandIconModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -23,6 +24,15 @@ extension View {
 }
 
 struct ContentView: View {
+    @State private var mode: Bool = true
+    @State private var showingResult = false
+    let rules = ["👊": "🤚", "🤚": "✌️", "✌️": "👊"]
+    let moves = ["👊", "🤚", "✌️"]
+    @State private var opponent = Int.random(in: 0...2)
+    @State private var scoreTitle = ""
+    
+    
+    
     var body: some View {
         ZStack {
             Color.blue
@@ -36,36 +46,24 @@ struct ContentView: View {
                     .padding()
                 Spacer()
                 VStack {
-                    Text("Win")
+                    Text(mode ? "WIN" : "LOSE")
                         .font(.largeTitle)
                         .foregroundColor(.white)
                         .fontWeight(.heavy)
-                    Text("👊")
+                    Text(moves[opponent])
                         .handIcon()
                 }
                 Spacer()
                 Spacer()
                 Spacer()
                 HStack(spacing: 5) {
-                    Button {
-                        // action
-                    } label: {
-                        Text("👊")
-                            .handIcon()
-                    }
-                    
-                    Button {
-                        // action
-                    } label: {
-                        Text("🤚")
-                            .handIcon()
-                    }
-                    
-                    Button {
-                        // action
-                    } label: {
-                        Text("✌️")
-                            .handIcon()
+                    ForEach(moves, id: \.self) { move in
+                        Button {
+                            moveTapped(move)
+                        } label: {
+                            Text(move)
+                                .handIcon()
+                        }
                     }
                 }
                 .padding()
@@ -73,6 +71,29 @@ struct ContentView: View {
                 Spacer()
             }
         }
+        .alert(scoreTitle, isPresented: $showingResult) {
+            Button("Continue") {
+                play()
+            }
+        }
+    }
+    
+    func moveTapped(_ move: String) {
+        let opponentMove = moves[opponent]
+        
+        if mode {
+            scoreTitle = rules[opponentMove] == move ? "Correct" : "Incorrect"
+        } else {
+            scoreTitle = rules[move] == opponentMove ? "Correct" : "Incorrect"
+        }
+        
+        print(opponentMove)
+        showingResult = true
+    }
+    
+    func play() {
+        mode.toggle()
+        opponent = Int.random(in: 0...2)
     }
 }
 
